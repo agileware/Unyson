@@ -145,14 +145,16 @@ window.fwOptionTypeIconV2Picker = (function ($) {
 			}
 
 			if (modal.frame.$el.find('.fw-icon-v2-icons-library ul').length === 0) {
+				/*
 				renderIconsLibrary({
 					search: '',
 					packs: _.values(fw_icon_v2_data.icons)
 				});
-
-				setTimeout(computeModalHeight, 100);
+				*/
 			}
 
+			computeModalHeight();
+			refreshFavoritesClasses(currentFavorites);
 			getLatestFavorites(refreshFavoritesClasses);
 
 			/**
@@ -244,9 +246,20 @@ window.fwOptionTypeIconV2Picker = (function ($) {
 			'</div>'
 		].join('');
 
-		var packsContainer = '<div class="fw-icon-v2-library-packs-wrapper"></div>';
+		var icons = _.map(
+			_.values(fw_icon_v2_data.icons),
+			renderPack
+		).join('');
+
+		var packsContainer = '<div class="fw-icon-v2-library-packs-wrapper">' +
+			icons + '</div>';
 
 		return toolbarContainer + packsContainer;
+
+		function renderPack (pack) {
+			var packHeader = '<h2><span>' + pack.title + '</span></h2>';
+			return packHeader + renderIconsCollection(pack, pack.icons);
+		}
 	}
 
 	/**
@@ -260,27 +273,17 @@ window.fwOptionTypeIconV2Picker = (function ($) {
 		}, options);
 
 		$('.fw-icon-v2-library-packs-wrapper').html(
-
-			_.map(
-				options.packs,
-				renderPack
-			).join('')
-
 		);
 
 		refreshSelectedIcon();
 
-		function renderPack (pack) {
-			filteredIcons = _.filter(pack.icons, function (icon) {
+		/*
+			var filteredIcons = _.filter(pack.icons, function (icon) {
 				return fuzzyConsecutive(options.search, icon);
 			});
 
 			if (filteredIcons.length === 0) return '';
-
-			var packHeader = '<h2><span>' + pack.title + '</span></h2>';
-
-			return packHeader + renderIconsCollection(pack, filteredIcons);
-		}
+		   */
 	}
 
 	function renderIconsCollection (pack, icons, favorites) {
@@ -432,11 +435,14 @@ window.fwOptionTypeIconV2Picker = (function ($) {
 		if (! modal) { return; }
 		var $icons = modal.frame.$el.find('.fw-icon-v2-library-packs-wrapper');
 		var toolbarHeight = modal.frame.$el.find('.fw-icon-v2-toolbar').height();
+		var topControlsHeight = modal.frame.$el.find(
+			'form > .fw-options-tabs-wrapper.fw-options-tabs-first-level > .fw-options-tabs-list'
+		).height();
 
 		$icons.height(
 			modal.frame.$el.find(
-				'.fw-options-tabs-contents.metabox-holder'
-			).height() - toolbarHeight - 50
+				'> .media-frame-content'
+			).height() - toolbarHeight - 70 - topControlsHeight
 		);
 	}
 
